@@ -4,27 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Solicitudes pendientes</title>
-    <link rel="stylesheet" href="/public/css/style.css">
+     <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+    <link rel="stylesheet" href="public/css/style.css?v=20260409b">
     <script src="public/js/jquery-4.0.0.min.js"></script>
-    
+    <script src="public/js/auth.js"></script>
+    <script src="public/js/solicitud.js"></script>
 </head>
 <body>
-    <nav>
-        <div>
-            <a href="index.php?page=talleres">Talleres</a>
-            <a href="index.php?page=admin">Gestionar Solicitudes</a>
+    <nav class="navbar navbar-expand-lg bg-white app-navbar mb-4">
+        <div class="container">
+            <div class="navbar-nav me-auto">
+            <a class="nav-link" href="index.php?page=talleres">Talleres</a>
+            <a class="nav-link" href="index.php?page=admin">Gestionar Solicitudes</a>
         </div>
-        <div>
+        <div class="d-flex align-items-center gap-2">
             <span>Admin: <?= htmlspecialchars($_SESSION['nombre'] ?? $_SESSION['user'] ?? 'Administrador') ?></span>
             <button id="btnLogout" class="btn-logout">Cerrar sesión</button>
+            </div>
         </div>
     </nav>
     
-    <main>
-        <h2>Solicitudes pendientes de aprobación</h2>
+    <main class="container pb-4">
+        <h2 class="app-title mb-3">Solicitudes pendientes de aprobación</h2>
         
-        <div class="table-container">
-            <table id="tabla-solicitudes">
+        <div>
+            <table id="tabla-solicitudes" class="table table-bordered app-table">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -44,7 +50,7 @@
         </div>
     </main>
 
-    <div id="mensaje"></div>
+    <div id="mensaje" class="mensaje alert alert-danger container" role="alert"></div>
 
     
 </body>

@@ -28,25 +28,71 @@ class TallerController
     
     public function getTalleresJson()
     {
+        header('Content-Type: application/json');
         if (!isset($_SESSION['id'])) {
-            echo json_encode([]);
+            echo json_encode(['response' => '01', 'message' => 'No autorizado', 'talleres' => []]);
             return;
         }
         
         $talleres = $this->tallerModel->getAllDisponibles();
-        header('Content-Type: application/json');
-        echo json_encode($talleres);
+        $usuarioId = $_SESSION['id'];
+        
+        // Agregar estado de solicitud a cada taller
+        foreach ($talleres as &$taller) {
+            $taller['estado_solicitud'] = $this->solicitudModel->getEstadoSolicitud($usuarioId, $taller['id']);
+        }
+        unset($taller);
+        
+        echo json_encode([
+            'response' => '00',
+            'rol' => $_SESSION['rol'] ?? 'usuario',
+            'talleres' => $talleres
+        ]);
     }
     
     public function solicitar()
     {
+        header('Content-Type: application/json');
         if (!isset($_SESSION['id'])) {
-            echo json_encode(['success' => false, 'error' => 'Debes iniciar sesión']);
+            echo json_encode(['response' => '01', 'message' => 'Debes iniciar sesion']);
+            return;
+        }
+
+        if (($_SESSION['rol'] ?? 'usuario') !== 'usuario') {
+            echo json_encode(['response' => '01', 'message' => 'Solo los usuarios pueden solicitar talleres']);
             return;
         }
         
-        $tallerId = $_POST['taller_id'] ?? 0;
+        $tallerId = (int)($_POST['taller_id'] ?? 0);
         $usuarioId = $_SESSION['id'];
+
+        if ($tallerId <= 0) {
+            echo json_encode(['response' => '01', 'message' => 'Taller invalido']);
+            return;
+        }
+
+        $taller = $this->tallerModel->getById($tallerId);
+        if (!$taller) {
+            echo json_encode(['response' => '01', 'message' => 'Taller no encontrado']);
+            return;
+        }
+
+        if ((int)$taller['cupo_disponible'] <= 0) {
+            echo json_encode(['response' => '01', 'message' => 'No hay cupos disponibles']);
+            return;
+        }
+
+        if ($this->solicitudModel->existeActivaPorUsuarioYTaller($usuarioId, $tallerId)) {
+            echo json_encode(['response' => '01', 'message' => 'Ya tienes una solicitud activa para este taller']);
+            return;
+        }
+
+        if ($this->solicitudModel->crear($tallerId, $usuarioId)) {
+            echo json_encode(['response' => '00', 'message' => 'Solicitud enviada correctamente']);
+            return;
+        }
+
+        echo json_encode(['response' => '01', 'message' => 'No fue posible registrar la solicitud']);
 
     }
 }

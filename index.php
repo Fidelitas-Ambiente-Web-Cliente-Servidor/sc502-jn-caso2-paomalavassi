@@ -4,66 +4,53 @@ session_start();
 require_once './app/controllers/UserController.php';
 require_once './app/controllers/TallerController.php';
 require_once './app/controllers/AdminController.php';
-require_once './app/models/Taller.php';
-require_once './app/models/Solicitud.php';
-require_once './app/models/User.php';
 
 $page = $_GET['page'] ?? 'login';
+$getOption = $_GET['option'] ?? '';
+$postOption = $_POST['option'] ?? '';
 
 // ========== RUTAS GET OBTENER DATOS ==========
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-
-    // Obtener listado de talleres
-    if ($_GET['option'] ?? "" == "talleres_json") {
-        $taller = new TallerController();
-        $taller->getTalleresJson();
+    if ($getOption === 'talleres_json') {
+        (new TallerController())->getTalleresJson();
         exit;
     }
 
-    // Obtener solicitudes pendientes
-    if ($_GET['option'] ?? "" == "solicitudes_json") {
-        $admin = new AdminController();
-        //$admin->getSolicitudesJson();
+    if ($getOption === 'solicitudes_json') {
+        (new AdminController())->getSolicitudesJson();
         exit;
     }
 }
 
 // ========== RUTAS FORMULARIO POST ==========
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    if ($_POST['option'] == "login") {
-        $auth = new UserController();
-        $auth->login();
+    if ($postOption === 'login') {
+        (new UserController())->login();
         exit;
     }
 
-    if ($_POST['option'] == "register") {
-        $auth = new UserController();
-        $auth->registro();
+    if ($postOption === 'register') {
+        (new UserController())->registro();
         exit;
     }
 
-    if ($_POST['option'] == "logout") {
-        $auth = new UserController();
-        $auth->logout();
+    if ($postOption === 'logout') {
+        (new UserController())->logout();
         exit;
     }
 
-    if ($_POST['option'] == "solicitar") {
-        $taller = new TallerController();
-        $taller->solicitar();
+    if ($postOption === 'solicitar') {
+        (new TallerController())->solicitar();
         exit;
     }
 
-    if ($_POST['option'] == "aprobar") {
-        $admin = new AdminController();
-        $admin->aprobar();
+    if ($postOption === 'aprobar') {
+        (new AdminController())->aprobar();
         exit;
     }
 
-    if ($_POST['option'] == "rechazar") {
-        $admin = new AdminController();
-        $admin->rechazar();
+    if ($postOption === 'rechazar') {
+        (new AdminController())->rechazar();
         exit;
     }
 }

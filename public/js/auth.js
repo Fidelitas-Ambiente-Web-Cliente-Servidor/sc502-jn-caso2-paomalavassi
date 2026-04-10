@@ -1,33 +1,58 @@
 $(function () {
-    let formLogin = $("#formLogin");
-    const urlBase = "index.php"
+    const formLogin = $("#formLogin");
+    const btnLogout = $("#btnLogout");
+    const urlBase = "index.php";
 
-    formLogin.on("submit", function (event) {
-        event.preventDefault();
-        let username = $("#username");
-        let password = $("#password");
+    if (formLogin.length) {
+        formLogin.on("submit", function (event) {
+            event.preventDefault();
+            const username = $("#username").val().trim();
+            const password = $("#password").val();
+            const mensaje = $("#mensaje");
 
-        if (username.val() === "" || password.val() === "") {
-            alert("Debe completar todos los campos");
-        } else {
-            $.post(urlBase,
-                {
-                    username: username.val(),
-                    password: password.val(),
+            if (username === "" || password === "") {
+                mensaje.text("Debe completar todos los campos").removeClass("ok").addClass("error").show();
+                return;
+            }
+
+            $.ajax({
+                url: urlBase,
+                method: "POST",
+                dataType: "json",
+                data: {
+                    username: username,
+                    password: password,
                     option: "login"
                 },
-                function (data, status) {
-                    data = JSON.parse(data);
-                    console.log(data);
-                    if(data.response == "00"){
-                        window.location = data.rol == 'admin' ? "index.php?page=admin" : "index.php?page=talleres";
+                success: function (data) {
+                    if (data.response === "00") {
+                        window.location = data.rol === "admin" ? "index.php?page=admin" : "index.php?page=talleres";
                     } else {
-                        alert(data.message)
+                        mensaje.text(data.message).removeClass("ok").addClass("error").show();
                     }
-                });
+                },
+                error: function () {
+                    mensaje.text("Error de conexion").removeClass("ok").addClass("error").show();
+                }
+            });
+        });
+    }
 
-        }
-    })
+    if (btnLogout.length) {
+        btnLogout.on("click", function () {
+            $.ajax({
+                url: urlBase,
+                method: "POST",
+                dataType: "json",
+                data: { option: "logout" },
+                success: function () {
+                    window.location = "index.php?page=login";
+                },
+                error: function () {
+                    window.location = "index.php?page=login";
+                }
+            });
+        });
+    }
 
-
-})
+});
